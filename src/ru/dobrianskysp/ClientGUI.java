@@ -29,6 +29,7 @@ public class ClientGUI extends JFrame implements ActionListener, Thread.Uncaught
 
     private final JList<String> userList = new JList<>();
 
+    private final PrintStream logChat = new PrintStream("log.txt");
 
     private ClientGUI() throws FileNotFoundException {
         Thread.setDefaultUncaughtExceptionHandler(this);
@@ -53,6 +54,8 @@ public class ClientGUI extends JFrame implements ActionListener, Thread.Uncaught
         panelBottom.add(btnDisconnect, BorderLayout.WEST);
         panelBottom.add(tfMessage, BorderLayout.CENTER);
         panelBottom.add(btnSend, BorderLayout.EAST);
+        tfMessage.addActionListener(this);
+        btnSend.addActionListener(this);
 
 
         add(scrollLog, BorderLayout.CENTER);
@@ -81,6 +84,12 @@ public class ClientGUI extends JFrame implements ActionListener, Thread.Uncaught
         Object src = e.getSource();
         if (src == cbAlwaysOnTop) {
             setAlwaysOnTop(cbAlwaysOnTop.isSelected());
+        } else if (src == btnSend || src == tfMessage) {
+            if (tfMessage.getText().trim().length() > 0) {
+                log.append(tfMessage.getText() + "\n");
+                logChat.println(log.getText()); // или можно добавлять только то что ввели через logChat.println(tfMessage.getText())но задумка логировать все что изменяется в чате не важно кто написал...
+                tfMessage.setText(null);
+            }
         } else {
                 throw new RuntimeException("Unknown source: " + src);
             }
