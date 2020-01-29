@@ -1,12 +1,14 @@
 package ru.dobrianskysp;
 
 import javax.swing.*;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.StandardOpenOption;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 
 public class ClientGUI extends JFrame implements ActionListener, Thread.UncaughtExceptionHandler {
 
@@ -29,6 +31,23 @@ public class ClientGUI extends JFrame implements ActionListener, Thread.Uncaught
 
     private final JList<String> userList = new JList<>();
 
+    private final PrintStream logChat = new PrintStream("log.txt");
+    DocumentListener listener = new DocumentListener() {
+        @Override
+        public void insertUpdate(DocumentEvent e) {
+            logChat.println(log.getText());
+        }
+
+        @Override
+        public void removeUpdate(DocumentEvent e) {
+            logChat.println("\n" + log.getText());
+        }
+
+        @Override
+        public void changedUpdate(DocumentEvent e) {
+
+        }
+    }; // Слушатель чата для логирования...
 
     private ClientGUI() throws FileNotFoundException {
         Thread.setDefaultUncaughtExceptionHandler(this);
@@ -53,9 +72,12 @@ public class ClientGUI extends JFrame implements ActionListener, Thread.Uncaught
         panelBottom.add(btnDisconnect, BorderLayout.WEST);
         panelBottom.add(tfMessage, BorderLayout.CENTER);
         panelBottom.add(btnSend, BorderLayout.EAST);
+        tfMessage.addActionListener(this);
+        btnSend.addActionListener(this);
 
 
         add(scrollLog, BorderLayout.CENTER);
+        log.getDocument().addDocumentListener(listener);
         add(scrollUser, BorderLayout.EAST);
         add(panelTop, BorderLayout.NORTH);
         add(panelBottom, BorderLayout.SOUTH);
@@ -81,6 +103,11 @@ public class ClientGUI extends JFrame implements ActionListener, Thread.Uncaught
         Object src = e.getSource();
         if (src == cbAlwaysOnTop) {
             setAlwaysOnTop(cbAlwaysOnTop.isSelected());
+        } else if (src == btnSend || src == tfMessage) {
+            if (tfMessage.getText().trim().length() > 0) {
+                log.append( new SimpleDateFormat("HH:mm:ss").format(Calendar.getInstance().getTime()) + ": " + tfMessage.getText() + "\n");
+                tfMessage.setText(null);
+            }
         } else {
                 throw new RuntimeException("Unknown source: " + src);
             }
