@@ -1,6 +1,8 @@
 package ru.dobrianskysp;
 
 import javax.swing.*;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -30,6 +32,22 @@ public class ClientGUI extends JFrame implements ActionListener, Thread.Uncaught
     private final JList<String> userList = new JList<>();
 
     private final PrintStream logChat = new PrintStream("log.txt");
+    DocumentListener listener = new DocumentListener() {
+        @Override
+        public void insertUpdate(DocumentEvent e) {
+            logChat.println(log.getText());
+        }
+
+        @Override
+        public void removeUpdate(DocumentEvent e) {
+            logChat.println("\n" + log.getText());
+        }
+
+        @Override
+        public void changedUpdate(DocumentEvent e) {
+
+        }
+    }; // Слушатель чата для логирования...
 
     private ClientGUI() throws FileNotFoundException {
         Thread.setDefaultUncaughtExceptionHandler(this);
@@ -59,6 +77,7 @@ public class ClientGUI extends JFrame implements ActionListener, Thread.Uncaught
 
 
         add(scrollLog, BorderLayout.CENTER);
+        log.getDocument().addDocumentListener(listener);
         add(scrollUser, BorderLayout.EAST);
         add(panelTop, BorderLayout.NORTH);
         add(panelBottom, BorderLayout.SOUTH);
@@ -87,7 +106,6 @@ public class ClientGUI extends JFrame implements ActionListener, Thread.Uncaught
         } else if (src == btnSend || src == tfMessage) {
             if (tfMessage.getText().trim().length() > 0) {
                 log.append( new SimpleDateFormat("HH:mm:ss").format(Calendar.getInstance().getTime()) + ": " + tfMessage.getText() + "\n");
-                logChat.println(log.getText()); // или можно добавлять только то что ввели через logChat.println(tfMessage.getText())но задумка логировать все что изменяется в чате не важно кто написал...
                 tfMessage.setText(null);
             }
         } else {
