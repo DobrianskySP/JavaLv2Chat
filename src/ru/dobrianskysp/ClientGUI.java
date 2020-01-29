@@ -5,8 +5,8 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.StandardOpenOption;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 
 public class ClientGUI extends JFrame implements ActionListener, Thread.UncaughtExceptionHandler {
 
@@ -86,7 +86,7 @@ public class ClientGUI extends JFrame implements ActionListener, Thread.Uncaught
             setAlwaysOnTop(cbAlwaysOnTop.isSelected());
         } else if (src == btnSend || src == tfMessage) {
             if (tfMessage.getText().trim().length() > 0) {
-                log.append(tfMessage.getText() + "\n");
+                log.append( new SimpleDateFormat("HH:mm:ss").format(Calendar.getInstance().getTime()) + ": " + tfMessage.getText() + "\n");
                 logChat.println(log.getText()); // или можно добавлять только то что ввели через logChat.println(tfMessage.getText())но задумка логировать все что изменяется в чате не важно кто написал...
                 tfMessage.setText(null);
             }
